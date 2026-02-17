@@ -50,11 +50,39 @@ resource "google_project_service" "hosting" {
   disable_on_destroy = false
 }
 
+resource "google_project_service" "firestore" {
+  service            = "firestore.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "identity_toolkit" {
+  service            = "identitytoolkit.googleapis.com"
+  disable_on_destroy = false
+}
+
 # 2. Firebase Project
 resource "google_firebase_project" "default" {
   provider   = google-beta
   project    = var.project_id
   depends_on = [google_project_service.firebase]
+}
+
+# 2a. Firebase Web App
+resource "google_firebase_web_app" "default" {
+  provider     = google-beta
+  project      = var.project_id
+  display_name = "IdeaSpark Web"
+  depends_on   = [google_firebase_project.default]
+}
+
+# 2b. Firestore Database
+resource "google_firestore_database" "default" {
+  provider    = google-beta
+  project     = var.project_id
+  name        = "(default)"
+  location_id = var.region
+  type        = "FIRESTORE_NATIVE"
+  depends_on  = [google_project_service.firestore]
 }
 
 # 3. Firebase Hosting Site
@@ -81,4 +109,17 @@ output "hosting_url" {
 
 output "verification_info" {
   value = "Check the Firebase Console -> Hosting to verify DNS for ${var.custom_domain_name}"
+}
+
+output "firebase_config" {
+  value = {
+    apiKey            = google_firebase_web_app.default.api_key_id
+    authDomain        = "${var.project_id}.firebaseapp.com"
+    projectId         = var.project_id
+    storageBucket     = "${var.project_id}.appspot.com"
+    messagingSenderId = google_firebase_web_app.default.app_id
+    appId             = google_firebase_web_app.default.app_id
+  }
+  description = "Firebase configuration for your React app"
+  sensitive   = true
 }
