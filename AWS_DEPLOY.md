@@ -13,9 +13,9 @@ This guide shows how to deploy IdeaSpark using AWS services (DynamoDB + S3/Cloud
 ```bash
 cd idea-spark
 
-# Deploy DynamoDB tables with Terraform
+# Deploy DynamoDB tables with Terraform (main.tf)
 terraform init
-terraform apply -target=aws_dynamodb_table.ideas -target=aws_dynamodb_table.groups
+terraform apply
 ```
 
 ## Step 2: Create IAM User for Frontend
@@ -83,44 +83,7 @@ echo "http://ideaspark-app.s3-website-us-east-1.amazonaws.com"
 
 ### Option B: Using Terraform
 
-Add to your `dynamodb.tf`:
-
-```hcl
-resource "aws_s3_bucket" "app" {
-  bucket = "ideaspark-app-${random_id.bucket_suffix.hex}"
-}
-
-resource "aws_s3_bucket_website_configuration" "app" {
-  bucket = aws_s3_bucket.app.id
-
-  index_document {
-    suffix = "index.html"
-  }
-
-  error_document {
-    key = "index.html"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "app" {
-  bucket = aws_s3_bucket.app.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-resource "random_id" "bucket_suffix" {
-  byte_length = 4
-}
-
-output "website_url" {
-  value = aws_s3_bucket_website_configuration.app.website_endpoint
-}
-```
-
-Then:
+The `main.tf` file already includes S3 bucket configuration.
 
 ```bash
 terraform apply

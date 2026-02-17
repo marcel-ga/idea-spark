@@ -22,9 +22,9 @@ This guide walks you through migrating IdeaSpark data from Firebase Firestore to
 ```bash
 cd idea-spark
 
-# Deploy DynamoDB tables
+# Deploy DynamoDB tables using main.tf
 terraform init
-terraform apply -target=aws_dynamodb_table.ideas -target=aws_dynamodb_table.groups
+terraform apply
 ```
 
 This creates:
@@ -97,10 +97,10 @@ If you need to start over:
 
 ```bash
 # Delete all items (WARNING: This deletes all data!)
-terraform destroy -target=aws_dynamodb_table.ideas -target=aws_dynamodb_table.groups
+terraform destroy
 
 # Recreate tables
-terraform apply -target=aws_dynamodb_table.ideas -target=aws_dynamodb_table.groups
+terraform apply
 ```
 
 ## Troubleshooting
